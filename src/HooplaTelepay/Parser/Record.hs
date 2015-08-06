@@ -1,6 +1,6 @@
 module HooplaTelepay.Parser.Record(Record, parseRecord) where
 
-import           Control.Monad                           (replicateM)
+import           Control.Monad                           (replicateM, replicateM_)
 import           HooplaTelepay.Parser.Applikasjonsheader
 import           Text.ParserCombinators.Parsec
 
@@ -14,6 +14,7 @@ data Record = BETFOR00 { r00_applikasjonsheader  :: Applikasjonsheader
                        , r00_operatornummer      :: String
                        , r00_egenreferanse       :: String
                        }
+
             | BETFOR21 { r21_applikasjonsheader :: Applikasjonsheader
                        , r21_foretaksnummer :: String
                        , r21_kontonummer :: String
@@ -38,6 +39,7 @@ data Record = BETFOR00 { r00_applikasjonsheader  :: Applikasjonsheader
                        , r21_slettearsak :: String
                        , r21_blankettnummer :: String
                        }
+
             | BETFOR23 { r23_applikasjonsheader :: Applikasjonsheader
                        , r23_foretaksnummer :: String
                        , r23_kontonummer :: String
@@ -56,6 +58,7 @@ data Record = BETFOR00 { r00_applikasjonsheader  :: Applikasjonsheader
                        , r23_kundenummer :: String
                        , r23_fakturadato :: String
                        }
+
             | BETFOR99 { r99_applikasjonsheader  :: Applikasjonsheader
                        , r99_foretaksnummer      :: String
                        , r99_sekvenskontrollfelt :: Integer
@@ -81,7 +84,7 @@ parseSpecificRecord "BETFOR00" applikasjonsheader =
   do foretaksnummer <- parseForetaksnummer
      divisjon       <- replicateM 11 anyChar
      sekvenskontrollfelt <- parseSekvenskontrollfelt
-     replicateM 6 space
+     replicateM_ 6 space
      produksjonsdato <- parseProduksjonsdato
      passord <- replicateM 10 anyChar
      rutineversjon <- string "VERSJON002"
@@ -89,26 +92,26 @@ parseSpecificRecord "BETFOR00" applikasjonsheader =
      operatornummer <- replicateM 11 anyChar
 
      -- skip sigill
-     replicateM 28 anyChar
+     replicateM_ 28 anyChar
 
      -- reservert
-     replicateM 143 space
+     replicateM_ 143 space
 
      egenreferanse <- replicateM 15 anyChar
 
      -- reservert
-     replicateM 9 space
+     replicateM_ 9 space
 
-     return $ BETFOR00 { r00_applikasjonsheader = applikasjonsheader
-                       , r00_foretaksnummer     = foretaksnummer
-                       , r00_divisjon = divisjon
-                       , r00_sekvenskontrollfelt = sekvenskontrollfelt
-                       , r00_produksjonsdato = produksjonsdato
-                       , r00_passord = passord
-                       , r00_nytt_passord = nytt_passord
-                       , r00_operatornummer = operatornummer
-                       , r00_egenreferanse = egenreferanse
-                       }
+     return BETFOR00 { r00_applikasjonsheader = applikasjonsheader
+                     , r00_foretaksnummer     = foretaksnummer
+                     , r00_divisjon = divisjon
+                     , r00_sekvenskontrollfelt = sekvenskontrollfelt
+                     , r00_produksjonsdato = produksjonsdato
+                     , r00_passord = passord
+                     , r00_nytt_passord = nytt_passord
+                     , r00_operatornummer = operatornummer
+                     , r00_egenreferanse = egenreferanse
+                     }
 
 parseSpecificRecord "BETFOR21" applikasjonsheader =
   do foretaksnummer <- parseForetaksnummer
@@ -138,34 +141,34 @@ parseSpecificRecord "BETFOR21" applikasjonsheader =
      slettearsak <- replicateM 1 anyChar
 
      -- reservert
-     replicateM 9 space
+     replicateM_ 9 space
 
      blankettnummer <- replicateM 10 digit
 
-     return $ BETFOR21 { r21_applikasjonsheader = applikasjonsheader
-                       , r21_foretaksnummer = foretaksnummer
-                       , r21_kontonummer = kontonummer
-                       , r21_sekvenskontrollfelt = sekvenskontrollfelt
-                       , r21_referansenummer = referansenummer
-                       , r21_betalingsdato = betalingsdato
-                       , r21_egenrefoppdrag = egenrefoppdrag
-                       , r21_mottaker_kontonr = mottaker_kontonr
-                       , r21_mottaker_navn = mottaker_navn
-                       , r21_adresse_1 = adresse_1
-                       , r21_adresse_2 = adresse_2
-                       , r21_postnr = postnr
-                       , r21_poststed = poststed
-                       , r21_belop_til_egen_konto = belop_til_egen_konto
-                       , r21_tekstkode = tekstkode
-                       , r21_transaksjonstype = transaksjonstype
-                       , r21_slettekode = slettekode
-                       , r21_totalbelop = totalbelop
-                       , r21_klientreferanse = klientreferanse
-                       , r21_valuteringsdato = valuteringsdato
-                       , r21_valuteringmottat = valuteringmottat
-                       , r21_slettearsak = slettearsak
-                       , r21_blankettnummer = blankettnummer
-                       }
+     return BETFOR21 { r21_applikasjonsheader = applikasjonsheader
+                     , r21_foretaksnummer = foretaksnummer
+                     , r21_kontonummer = kontonummer
+                     , r21_sekvenskontrollfelt = sekvenskontrollfelt
+                     , r21_referansenummer = referansenummer
+                     , r21_betalingsdato = betalingsdato
+                     , r21_egenrefoppdrag = egenrefoppdrag
+                     , r21_mottaker_kontonr = mottaker_kontonr
+                     , r21_mottaker_navn = mottaker_navn
+                     , r21_adresse_1 = adresse_1
+                     , r21_adresse_2 = adresse_2
+                     , r21_postnr = postnr
+                     , r21_poststed = poststed
+                     , r21_belop_til_egen_konto = belop_til_egen_konto
+                     , r21_tekstkode = tekstkode
+                     , r21_transaksjonstype = transaksjonstype
+                     , r21_slettekode = slettekode
+                     , r21_totalbelop = totalbelop
+                     , r21_klientreferanse = klientreferanse
+                     , r21_valuteringsdato = valuteringsdato
+                     , r21_valuteringmottat = valuteringmottat
+                     , r21_slettearsak = slettearsak
+                     , r21_blankettnummer = blankettnummer
+                     }
 
 
 parseSpecificRecord "BETFOR23" applikasjonsheader =
@@ -186,36 +189,35 @@ parseSpecificRecord "BETFOR23" applikasjonsheader =
      kundenummer <- replicateM 15 anyChar
      fakturadato <- replicateM 8 digit
 
-     return $ BETFOR23 { r23_applikasjonsheader = applikasjonsheader
-                       , r23_foretaksnummer = foretaksnummer
-                       , r23_kontonummer = kontonummer
-                       , r23_sekvenskontrollfelt = sekvenskontrollfelt
-                       , r23_referansenummer = referansenummer
-                       , r23_melding_1 = melding_1
-                       , r23_melding_2 = melding_2
-                       , r23_melding_3 = melding_3
-                       , r23_kid = kid
-                       , r23_egenreffaktura = egenreffaktura
-                       , r23_faktura_belop = faktura_belop
-                       , r23_debit_kredit_kode = debit_kredit_kode
-                       , r23_fakturanummer = fakturanummer
-                       , r23_lopenummer = lopenummer
-                       , r23_slettearsak = slettearsak
-                       , r23_kundenummer = kundenummer
-                       , r23_fakturadato = fakturadato
-                       }
+     return BETFOR23 { r23_applikasjonsheader = applikasjonsheader
+                     , r23_foretaksnummer = foretaksnummer
+                     , r23_kontonummer = kontonummer
+                     , r23_sekvenskontrollfelt = sekvenskontrollfelt
+                     , r23_referansenummer = referansenummer
+                     , r23_melding_1 = melding_1
+                     , r23_melding_2 = melding_2
+                     , r23_melding_3 = melding_3
+                     , r23_kid = kid
+                     , r23_egenreffaktura = egenreffaktura
+                     , r23_faktura_belop = faktura_belop
+                     , r23_debit_kredit_kode = debit_kredit_kode
+                     , r23_fakturanummer = fakturanummer
+                     , r23_lopenummer = lopenummer
+                     , r23_slettearsak = slettearsak
+                     , r23_kundenummer = kundenummer
+                     , r23_fakturadato = fakturadato
+                     }
 
 
 parseSpecificRecord "BETFOR99" applikasjonsheader =
   do foretaksnummer <- parseForetaksnummer
 
      -- reservert
-     replicateM 11 space
+     replicateM_ 11 space
 
      sekvenskontrollfelt <- parseSekvenskontrollfelt
-
      -- reservert
-     replicateM 6 space
+     replicateM_ 6 space
 
      produksjonsdato <- parseProduksjonsdato
 
@@ -226,26 +228,26 @@ parseSpecificRecord "BETFOR99" applikasjonsheader =
      antall_records <- fmap read $ replicateM 5 digit
 
      -- reservert
-     replicateM 163 space
+     replicateM_ 163 space
 
      -- skip sigill
-     replicateM 25 anyChar
+     replicateM_ 25 anyChar
 
      versjon_software <- replicateM 16 anyChar
 
      versjon_bank     <- replicateM 8  anyChar
 
 
-     return $ BETFOR99 { r99_applikasjonsheader = applikasjonsheader
-                       , r99_foretaksnummer = foretaksnummer
-                       , r99_sekvenskontrollfelt = sekvenskontrollfelt
-                       , r99_produksjonsdato = produksjonsdato
-                       , r99_antall_oppdrag = antall_oppdrag
-                       , r99_totalsum_fil = totalsum_fil
-                       , r99_antall_records = antall_records
-                       , r99_versjon_software = versjon_software
-                       , r99_versjon_bank = versjon_bank
-                       }
+     return BETFOR99 { r99_applikasjonsheader = applikasjonsheader
+                     , r99_foretaksnummer = foretaksnummer
+                     , r99_sekvenskontrollfelt = sekvenskontrollfelt
+                     , r99_produksjonsdato = produksjonsdato
+                     , r99_antall_oppdrag = antall_oppdrag
+                     , r99_totalsum_fil = totalsum_fil
+                     , r99_antall_records = antall_records
+                     , r99_versjon_software = versjon_software
+                     , r99_versjon_bank = versjon_bank
+                     }
 
 
 

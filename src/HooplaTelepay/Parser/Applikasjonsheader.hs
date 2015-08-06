@@ -1,7 +1,7 @@
 module HooplaTelepay.Parser.Applikasjonsheader(Applikasjonsheader(..), testApplikasjonsheader, parseApplikasjonsheader) where
 
 
-import           Control.Monad                 (replicateM)
+import           Control.Monad                 (replicateM, replicateM_)
 import           Text.ParserCombinators.Parsec
 
 
@@ -9,7 +9,7 @@ data Applikasjonsheader =
   Applikasjonsheader { ah_id          :: String
                      , ah_versjon     :: String
                      , ah_returkode   :: String
-                     , ah_rutineid   :: String
+                     , ah_rutineid    :: String
                      , ah_transdato   :: String
                      , ah_trans_seknr :: Int
                      , ah_antall_a_80 :: Int
@@ -42,19 +42,18 @@ parseApplikasjonsheader =
      -- AH-TRANS-SEKVNR. Applikasjonsheader (Posisjon 14-19)
      trans_seknr <- parseTransseknr
 
-     replicateM 17 space -- 17 blank spaces
+     replicateM_ 17 space -- 17 blank spaces
 
      antall_a_80 <- parseAntalla80
 
-     return $
-       Applikasjonsheader { ah_id = id
-                          , ah_versjon = versjon
-                          , ah_returkode = returkode
-                          , ah_rutineid = rutineid
-                          , ah_transdato = transdato
-                          , ah_trans_seknr = trans_seknr
-                          , ah_antall_a_80 = antall_a_80
-                          }
+     return Applikasjonsheader { ah_id = id
+                               , ah_versjon = versjon
+                               , ah_returkode = returkode
+                               , ah_rutineid = rutineid
+                               , ah_transdato = transdato
+                               , ah_trans_seknr = trans_seknr
+                               , ah_antall_a_80 = antall_a_80
+                               }
 
 parseReturkode :: Parser String
 parseReturkode = choice $ map trystring returkoder
