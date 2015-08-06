@@ -1,0 +1,9 @@
+* generelt
+  Numeriske felt skal høyrejusteres og null utfylles.
+  Alfanumeriske felt skal venstrejusteres. Ubenyttet plass paddes (blankes).
+  Defaultverdier dersom annet ikke er angitt:
+   - Numeriske felt : ASCII nuller
+   - Alfanumeriske felt : Paddes med blanke.
+  Gjeldende tegnsett er ISO 8859-1
+* struktur
+  Starter paa BETFOR00, slutter paa BETFOR99
