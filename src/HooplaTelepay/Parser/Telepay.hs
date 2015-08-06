@@ -9,10 +9,12 @@ data Telepay =
           , tRecords :: [Record]
           , tBETFOR99 :: Record
           }
-
+  deriving Show
 
 parseTelepay :: Parser Telepay
 parseTelepay =
-  do betfor00 <- parseRecord "00"
-     --betfor99 <- parseRecord "99"
-     return $ Telepay betfor00 [] betfor00
+  do betfor00 <- parseRecord
+     string "PELLEPELLEPELLEPELLE"
+     betfor99 <- parseRecord
+     string "pelle"
+     return $ Telepay betfor00 [] betfor99

@@ -16,28 +16,33 @@ data Record = BETFOR00 { r00_applikasjonsheader  :: Applikasjonsheader
                        }
             | BETFOR21 { r21_applikasjonsheader :: Applikasjonsheader }
             | BETFOR23 { r23_applikasjonsheader :: Applikasjonsheader }
-            | BETFOR99 { r99_applikasjonsheader :: Applikasjonsheader
-                       , r99_foretaksnummer     :: String
+            | BETFOR99 { r99_applikasjonsheader  :: Applikasjonsheader
+                       , r99_foretaksnummer      :: String
+                       , r99_sekvenskontrollfelt :: Int
+                       , r99_produksjonsdato     :: String
+                       , r99_antall_oppdrag      :: Int
+                       , r99_totalsum_fil        :: Int
+                       , r99_antall_records      :: Int
+                       , r99_versjon_software    :: String
+                       , r99_versjon_bank        :: String
                        }
+
             deriving Show
 
 
-parseRecord :: String -> Parser Record
-parseRecord r =
+parseRecord :: Parser Record
+parseRecord =
   do applikasjonsheader <- parseApplikasjonsheader
-     -- recordStr <- replicateM (80 * ah_antall_a_80 applikasjonsheader) anyChar
-     -- redundant?
-     parseSpecificRecord r applikasjonsheader
+     recordid <- replicateM 8 anyChar
+     parseSpecificRecord recordid applikasjonsheader
 
 parseSpecificRecord :: String -> Applikasjonsheader -> Parser Record
-parseSpecificRecord "00" applikasjonsheader =
-  do string "BETFOR00"
-     foretaksnummer <- replicateM 11 digit
+parseSpecificRecord "BETFOR00" applikasjonsheader =
+  do foretaksnummer <- parseForetaksnummer
      divisjon       <- replicateM 11 anyChar
-     skf <- replicateM 4 digit
-     let sekvenskontrollfelt = read skf
+     sekvenskontrollfelt <- parseSekvenskontrollfelt
      replicateM 6 space
-     produksjonsdato <- replicateM 4 digit
+     produksjonsdato <- parseProduksjonsdato
      passord <- replicateM 10 anyChar
      rutineversjon <- string "VERSJON002"
      nytt_passord <- replicateM 10 anyChar
@@ -47,12 +52,12 @@ parseSpecificRecord "00" applikasjonsheader =
      replicateM 28 anyChar
 
      -- reservert
-     replicateM 143 anyChar
+     replicateM 143 space
 
      egenreferanse <- replicateM 15 anyChar
 
      -- reservert
-     replicateM 9 anyChar
+     replicateM 9 space
 
      return $ BETFOR00 { r00_applikasjonsheader = applikasjonsheader
                        , r00_foretaksnummer     = foretaksnummer
@@ -64,3 +69,54 @@ parseSpecificRecord "00" applikasjonsheader =
                        , r00_operatornummer = operatornummer
                        , r00_egenreferanse = egenreferanse
                        }
+
+parseSpecificRecord "BETFOR99" applikasjonsheader =
+  do foretaksnummer <- parseForetaksnummer
+
+     -- reservert
+     replicateM 11 space
+
+     sekvenskontrollfelt <- parseSekvenskontrollfelt
+
+     -- reservert
+     replicateM 6 space
+
+     produksjonsdato <- parseProduksjonsdato
+
+     antall_oppdrag <- fmap read $ replicateM 4 digit
+
+     totalsum_fil <- fmap read $ replicateM 15 digit
+
+     antall_records <- fmap read $ replicateM 5 digit
+
+     -- reservert
+     replicateM 163 space
+
+     -- skip sigill
+     replicateM 25 anyChar
+
+     versjon_software <- replicateM 16 anyChar
+
+     versjon_bank     <- replicateM 8  anyChar
+
+
+     return $ BETFOR99 { r99_applikasjonsheader = applikasjonsheader
+                       , r99_foretaksnummer = foretaksnummer
+                       , r99_sekvenskontrollfelt = sekvenskontrollfelt
+                       , r99_produksjonsdato = produksjonsdato
+                       , r99_antall_oppdrag = antall_oppdrag
+                       , r99_totalsum_fil = totalsum_fil
+                       , r99_antall_records = antall_records
+                       , r99_versjon_software = versjon_software
+                       , r99_versjon_bank = versjon_bank
+                       }
+
+
+parseForetaksnummer :: Parser String
+parseForetaksnummer = replicateM 11 digit
+
+parseSekvenskontrollfelt :: Parser Int
+parseSekvenskontrollfelt = fmap read $ replicateM 4 digit
+
+parseProduksjonsdato :: Parser String
+parseProduksjonsdato = replicateM 4 digit

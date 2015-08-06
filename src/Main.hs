@@ -20,15 +20,6 @@ main = defaultMain $ with Help $ with ValidateFile $ initialize "Hoopla-telepay-
 validateFile :: FilePath -> IO ()
 validateFile filename =
   do filecontents <- readFile filename
-     case parse parseTelepay_ "Validating Telepay file" filecontents of
+     case parse parseTelepay "Validating Telepay file" filecontents of
        Left err -> error $ show err
-       Right p  -> putStrLn "This is a valid telepay file!"
-
-
-parseTelepay_ :: Parser String
-parseTelepay_ =
-  do
-     parseTelepay
-
-     skipMany space
-     return "00"
+       Right p  -> print p
