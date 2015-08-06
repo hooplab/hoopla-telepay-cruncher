@@ -1,4 +1,4 @@
-module HooplaTelepay.Parser.ApplicationHeader(Applikasjonsheader, testApplikasjonsheader, parseApplikasjonsheader) where
+module HooplaTelepay.Parser.Applikasjonsheader(Applikasjonsheader(..), testApplikasjonsheader, parseApplikasjonsheader) where
 
 
 import           Control.Monad                 (replicateM)
@@ -9,7 +9,7 @@ data Applikasjonsheader =
   Applikasjonsheader { ah_id          :: String
                      , ah_versjon     :: String
                      , ah_returkode   :: String
-                     , ah_rutine_id   :: String
+                     , ah_rutineid   :: String
                      , ah_transdato   :: String
                      , ah_trans_seknr :: Int
                      , ah_antall_a_80 :: Int
@@ -21,7 +21,7 @@ testApplikasjonsheader =
   Applikasjonsheader { ah_id          = "AH"
                      , ah_versjon     = "2"
                      , ah_returkode   = "00"
-                     , ah_rutine_id   = "TBII"
+                     , ah_rutineid   = "TBII"
                      , ah_transdato   = "0101"
                      , ah_trans_seknr = 1
                      , ah_antall_a_80 = 1
@@ -40,13 +40,21 @@ parseApplikasjonsheader =
      -- AH-transdato i alle BETFORXX Applikasjonsheader (Posisjon 10-13)
      transdato <- parseTransdato
      -- AH-TRANS-SEKVNR. Applikasjonsheader (Posisjon 14-19)
-     transseknr <- parseTransseknr
+     trans_seknr <- parseTransseknr
 
      replicateM 17 space -- 17 blank spaces
 
-     antall_a <- parseAntall_a
+     antall_a_80 <- parseAntalla80
+
      return $
-       Applikasjonsheader id versjon returkode rutineid transdato (read transseknr) (read antall_a)
+       Applikasjonsheader { ah_id = id
+                          , ah_versjon = versjon
+                          , ah_returkode = returkode
+                          , ah_rutineid = rutineid
+                          , ah_transdato = transdato
+                          , ah_trans_seknr = trans_seknr
+                          , ah_antall_a_80 = antall_a_80
+                          }
 
 parseReturkode :: Parser String
 parseReturkode = choice $ map trystring returkoder
@@ -56,7 +64,7 @@ parseReturkode = choice $ map trystring returkoder
           , "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "95" ]
 
 parseRutineid :: Parser String
-parseRutineid = choice $ map trystring [ "TBII", "TBRI", "TBIO", "TBRO", "TBIU", "TBRU" ]
+parseRutineid = string "TBII"
 
 parseTransdato :: Parser String
 parseTransdato =
@@ -72,20 +80,13 @@ parseTransdato =
 
 parseTransseknr :: Parser Int
 parseTransseknr =
-  do n1 <- digit
-     n2 <- digit
-     n3 <- digit
-     n4 <- digit
-     n5 <- digit
-     if n1 == '0' &&
-        n2 == '0' &&
-        n3 == '0' &&
-        n4 == '0' &&
-        n5 == '0'
-       then nonzerodigit
-       else digit
-  where nonzerodigit = oneOf ['1','2','3','4','5','6','7','8','9']
+  do n <- replicateM 6 digit
+     return $ read n
 
+parseAntalla80 :: Parser Int
+parseAntalla80 =
+  do n <- replicateM 2 digit
+     return $ read n
 
 -- string matching with backgracking.
 trystring = try . string

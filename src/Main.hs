@@ -4,7 +4,7 @@ import           Application.CLI
 import           Text.ParserCombinators.Parsec
 import Control.Monad (replicateM)
 
-import HooplaTelapay.Parser.ApplicationHeader
+import HooplaTelepay.Parser.Telepay
 
 data ValidateFile = ValidateFile
 instance CLI ValidateFile where
@@ -20,19 +20,15 @@ main = defaultMain $ with Help $ with ValidateFile $ initialize "Hoopla-telepay-
 validateFile :: FilePath -> IO ()
 validateFile filename =
   do filecontents <- readFile filename
-     case parse validateTelepay "Validating Telepay file" filecontents of
+     case parse parseTelepay_ "Validating Telepay file" filecontents of
        Left err -> error $ show err
        Right p  -> putStrLn "This is a valid telepay file!"
 
 
-validateTelepay :: Parser String
-validateTelepay =
-  do validateBETFOR00
-
-     validateApplicationHeader
+parseTelepay_ :: Parser String
+parseTelepay_ =
+  do
+     parseTelepay
 
      skipMany space
-
-
-
-     readEnd
+     return "00"
