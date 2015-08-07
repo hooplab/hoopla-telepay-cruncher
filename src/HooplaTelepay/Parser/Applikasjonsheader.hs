@@ -1,20 +1,10 @@
-module HooplaTelepay.Parser.Applikasjonsheader(Applikasjonsheader(..), parseApplikasjonsheader) where
+module HooplaTelepay.Parser.Applikasjonsheader(parseApplikasjonsheader) where
 
 
 import           Control.Monad                 (replicateM, replicateM_)
+import           HooplaTelepay.Model
 import           Text.ParserCombinators.Parsec
 
-
-data Applikasjonsheader =
-  Applikasjonsheader { ah_id          :: String
-                     , ah_versjon     :: String
-                     , ah_returkode   :: String
-                     , ah_rutineid    :: String
-                     , ah_transdato   :: String
-                     , ah_trans_seknr :: Int
-                     , ah_antall_a_80 :: Int
-                    }
-  deriving Show
 
 parseApplikasjonsheader :: Parser Applikasjonsheader
 parseApplikasjonsheader =
