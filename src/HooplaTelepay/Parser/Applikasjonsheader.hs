@@ -1,4 +1,4 @@
-module HooplaTelepay.Parser.Applikasjonsheader(Applikasjonsheader(..), testApplikasjonsheader, parseApplikasjonsheader) where
+module HooplaTelepay.Parser.Applikasjonsheader(Applikasjonsheader(..), parseApplikasjonsheader) where
 
 
 import           Control.Monad                 (replicateM, replicateM_)
@@ -16,17 +16,6 @@ data Applikasjonsheader =
                     }
   deriving Show
 
-testApplikasjonsheader :: Applikasjonsheader
-testApplikasjonsheader =
-  Applikasjonsheader { ah_id          = "AH"
-                     , ah_versjon     = "2"
-                     , ah_returkode   = "00"
-                     , ah_rutineid   = "TBII"
-                     , ah_transdato   = "0101"
-                     , ah_trans_seknr = 1
-                     , ah_antall_a_80 = 1
-                     }
-
 parseApplikasjonsheader :: Parser Applikasjonsheader
 parseApplikasjonsheader =
   do -- AH- ID Applikasjonsheader (Posisjon 1-2)
@@ -42,7 +31,7 @@ parseApplikasjonsheader =
      -- AH-TRANS-SEKVNR. Applikasjonsheader (Posisjon 14-19)
      trans_seknr <- parseTransseknr
 
-     replicateM_ 17 space -- 17 blank spaces
+     replicateM_ 19 space -- 19 blank spaces
 
      antall_a_80 <- parseAntalla80
 
@@ -63,7 +52,7 @@ parseReturkode = choice $ map trystring returkoder
           , "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "95" ]
 
 parseRutineid :: Parser String
-parseRutineid = string "TBII"
+parseRutineid = replicateM 4 anyChar
 
 parseTransdato :: Parser String
 parseTransdato =

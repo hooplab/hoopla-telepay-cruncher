@@ -93,7 +93,6 @@ parseSpecificRecord "BETFOR00" applikasjonsheader =
 
      -- skip sigill
      replicateM_ 28 anyChar
-
      -- reservert
      replicateM_ 143 space
 
